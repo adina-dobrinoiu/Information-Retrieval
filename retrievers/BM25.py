@@ -1,6 +1,6 @@
 from rank_bm25 import BM25Okapi
 import numpy as np
-from CISILoader import CISILoader
+from retrievers.CISILoader import CISILoader
 
 
 class BM25Retriever:
