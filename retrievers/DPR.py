@@ -28,7 +28,6 @@ class DPRRetriever:
         # load data
         self.doc_set = pd.DataFrame(list(self.doc_set.items()), columns=["doc_id", "text"])
         self.qry_set = pd.DataFrame(list(self.qry_set.items()), columns=["query_id", "text"])
-        self.rel_set = pd.DataFrame(list(self.rel_set.items()), columns=["query_id", "doc_ids"])
 
         self.corpus, self.doc_ids = self._corpus_creation(self.doc_set)
 
@@ -55,8 +54,9 @@ class DPRRetriever:
             q_emb = question_encoder(**inputs).pooler_output
         return q_emb.cpu().numpy()
 
-    def _retrieve_dpr(self, query: str, top_k: int = 5):
+    def _retrieve_dpr(self, query: str):
         q_emb = self._encode_query(query, self.question_tokenizer, self.question_encoder, self.device)
+        top_k = self.index.ntotal
         distances, indices = self.index.search(q_emb, top_k)
         results = []
         for rank, idx in enumerate(indices[0], start=1):
