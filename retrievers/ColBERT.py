@@ -21,6 +21,8 @@ class ColBERTRetriever:
         self.doc_set = CISILoader.load_documents(doc_path)
         self.qry_set = pd.DataFrame(list(CISILoader.load_queries(qry_path).items()),
                                      columns=["query_id", "text"])
+        self.cpy_qry_set = CISILoader.load_queries(qry_path)
+
         self.rel_set = CISILoader.load_relevance(rel_path)
         self.documents_dict = {str(doc_id): text for doc_id, text in self.doc_set.items()}
 
@@ -99,6 +101,19 @@ class ColBERTRetriever:
                 "score": score
             })
         return results
+
+    def retrieve_with_scores(self, idx):
+        query = self.cpy_qry_set[idx]
+        total_docs = len(self.documents_dict)  # Get total number of indexed documents
+        encoded_query = self.encode_query(query)
+        with self.run:
+            ranked = self.searcher.search(encoded_query, k=total_docs)
+        results = {}
+        for rank, (doc_id, score) in enumerate(ranked.items(), start=1):
+            results[doc_id] = score
+
+        return results
+
 
     def search_all_queries(self):
         """

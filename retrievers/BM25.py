@@ -23,3 +23,14 @@ class BM25Retriever:
         top_indices = np.argsort(scores)[::-1] + 1
 
         return top_indices
+
+    def retrieve_with_scores(self, idx):
+        query = self.qry_set[idx]
+
+        tokenized_query = query.split(" ")
+        scores = self.bm25.get_scores(tokenized_query)
+        results = {}
+        for i in range(len(scores)):
+            results[i + 1] = scores[i]
+
+        return results

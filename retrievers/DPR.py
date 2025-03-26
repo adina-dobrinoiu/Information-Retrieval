@@ -15,6 +15,7 @@ class DPRRetriever:
     def __init__(self, doc_path, qry_path, rel_path):
         self.doc_set = CISILoader.load_documents(doc_path)
         self.qry_set = CISILoader.load_queries(qry_path)
+        self.cpy_qry_set = CISILoader.load_queries(qry_path)
         self.rel_set = CISILoader.load_relevance(rel_path)
         self._initialize_dpr()
         var = self.index
@@ -66,6 +67,17 @@ class DPRRetriever:
                 'doc_text': self.corpus[idx],
                 'distance': float(distances[0][rank - 1])
             })
+        return results
+
+    def retrieve_with_scores(self, idx):
+        query = self.cpy_qry_set[idx]
+        q_emb = self._encode_query(query, self.question_tokenizer, self.question_encoder, self.device)
+        top_k = self.index.ntotal
+        distances, indices = self.index.search(q_emb, top_k)
+        results = {}
+        for rank, idx in enumerate(indices[0], start=1):
+            results[self.doc_ids[idx]] = -float(distances[0][rank - 1])
+
         return results
 
     def _encode_corpus(self, context_tokenizer, context_encoder, device, corpus, batch_size=32):

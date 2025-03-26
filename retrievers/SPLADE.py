@@ -16,6 +16,7 @@ class SPLADERetriever:
         # Load documents and queries
         self.doc_set = CISILoader.load_documents(doc_path)
         self.qry_set = CISILoader.load_queries(qry_path)
+        self.cpy_qry_set = CISILoader.load_queries(qry_path)
         self.rel_set = CISILoader.load_relevance(rel_path)
 
         # Initialize SPLADE components
@@ -96,6 +97,17 @@ class SPLADERetriever:
                 "doc_text": self.corpus[idx],
                 "distance": float(distances[0][rank - 1])
             })
+        return results
+
+    def retrieve_with_scores(self, idx):
+        query = self.cpy_qry_set[idx]
+        top_k = self.index.ntotal
+        q_emb = self._encode_query(query).reshape(1, -1)
+        distances, indices = self.index.search(q_emb, top_k)
+        results = {}
+        for rank, idx in enumerate(indices[0], start=1):
+            results[self.doc_ids[idx]] = -float(distances[0][rank - 1])
+
         return results
 
     def search_all_queries(self):
