@@ -1,0 +1,9 @@
+colbert-ai==0.2.21
+faiss-cpu==1.10.0
+numpy==2.2.4
+pandas==2.2.3
+rank-bm25==0.2.2
+torch==2.6.0
+transformers==4.50.3
+tqdm==4.67.1
+jupyter
